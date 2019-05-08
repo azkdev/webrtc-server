@@ -10,9 +10,25 @@ socket.on("offer", function(id, description) {
     .then(function() {
       socket.emit("answer", id, peerConnection.localDescription);
     });
-  peerConnection.onaddstream = function(event) {
-    video.srcObject = event.stream;
+
+  let videot;
+
+  peerConnection.ontrack = event => {
+    videot = document.createElement("video");
+    videot.muted = true;
+    videot.autoplay = true;
+    videot.srcObject = event.streams[0];
+    document.body.appendChild(videot);
+    videot.play();
+
+    console.log(event);
   };
+
+  peerConnection.oniceconnectionstatechange = () => {
+    if (peerConnection.iceConnectionState === "disconnected")
+      document.body.removeChild(videot);
+  };
+
   peerConnection.onicecandidate = function(event) {
     if (event.candidate) {
       socket.emit("candidate", id, event.candidate);
