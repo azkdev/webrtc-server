@@ -20,8 +20,6 @@ socket.on("offer", function(id, description) {
     videot.srcObject = event.streams[0];
     document.body.appendChild(videot);
     videot.play();
-
-    console.log(event);
   };
 
   peerConnection.oniceconnectionstatechange = () => {
@@ -48,6 +46,10 @@ socket.on("connect", function() {
 
 socket.on("broadcaster", function() {
   socket.emit("watcher");
+});
+
+socket.on("record", data => {
+  console.log(data.length);
 });
 
 socket.on("bye", function() {

@@ -1,5 +1,7 @@
 const credentials = require("./credentials");
 const express = require("express");
+const save = require("save-file");
+
 const app = express();
 
 let broadcaster;
@@ -28,6 +30,12 @@ io.sockets.on("connection", socket => {
     socket.broadcast.emit("broadcaster");
   });
 
+  let userChunks = [];
+
+  socket.on("record", data => {
+    userChunks.push(data);
+  });
+
   socket.on("watcher", () => {
     broadcaster && socket.to(broadcaster).emit("watcher", socket.id);
   });
@@ -44,8 +52,9 @@ io.sockets.on("connection", socket => {
     socket.to(id).emit("candidate", socket.id, message);
   });
 
-  socket.on("disconnect", () => {
+  socket.on("disconnect", async () => {
     broadcaster && socket.to(broadcaster).emit("bye", socket.id);
+    await save(userChunks, "uservideo.webm");
   });
 });
 
